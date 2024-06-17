@@ -1,0 +1,56 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "_bytesProof",
+				"type": "bytes"
+			},
+			{
+				"internalType": "uint256",
+				"name": "pair",
+				"type": "uint256"
+			}
+		],
+		"name": "GetPairPrice",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "contract SupraOraclePull",
+				"name": "oracle_",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "pair",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "decimals",
+				"type": "uint256"
+			}
+		],
+		"name": "PairPrice",
+		"type": "event"
+	}
+]

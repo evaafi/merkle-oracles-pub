@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  main:
+    image: merkle-oracles
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped

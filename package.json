@@ -1,0 +1,38 @@
+{
+  "name": "merkle-oracles",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "start:dev": "npx nodemon",
+    "build": "tsc -p .",
+    "postinstall": "patch-package"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "nodemon": "^3.1.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.10.8",
+    "@grpc/proto-loader": "^0.7.13",
+    "@iota/sdk": "^1.1.5",
+    "@redstone-finance/sdk": "^0.5.1",
+    "@ton/core": "^0.56.3",
+    "@ton/crypto": "^3.2.0",
+    "@ton/ton": "^13.11.2",
+    "dotenv": "^16.4.5",
+    "ethereumjs-util": "^7.1.5",
+    "ethers": "^6.13.0",
+    "grammy": "^1.24.1",
+    "keccak": "^3.0.4",
+    "patch-package": "^8.0.0",
+    "secp256k1": "^5.0.0",
+    "web3": "^4.9.0"
+  }
+}
