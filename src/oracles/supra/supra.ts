@@ -20,7 +20,6 @@ export async function getSupraPrices(bot: Bot, prefix: string): Promise<OraclePr
                 client.getProof(request, async (err, response) => {
                     if (err) {
                         console.error('Error:', err.details);
-                        await bot.api.sendMessage(process.env.TELEGRAM_CHAT_ID, `${prefix} Failed to get proof: ${err.details}`);
                         reject(err);
                     } else {
                         resolve(response);
@@ -45,8 +44,6 @@ export async function getSupraPrices(bot: Bot, prefix: string): Promise<OraclePr
         }
 
         if (errors) {
-            await bot.api.sendMessage(process.env.TELEGRAM_CHAT_ID, `${prefix} ${errors}`);
-            await sleep(300);
             throw new Error(errors);
         }
 

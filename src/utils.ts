@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import {Bot} from "grammy";
 
 export function findMedian(arr: number[]): number {
     const sortedArr = arr.slice().sort((a, b) => a - b);
@@ -68,4 +69,12 @@ export function sha256Hash(input: string): bigint {
     const hash = crypto.createHash('sha256');
     hash.update(input);
     return BigInt(`0x${hash.digest('hex')}`);
+}
+
+export async function sendIgnoreError(bot: Bot, chatId: string, message: string) {
+    try {
+        await bot.api.sendMessage(chatId, message);
+    } catch (error) {
+        console.error(error);
+    }
 }

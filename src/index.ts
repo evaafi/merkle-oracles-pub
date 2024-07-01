@@ -7,7 +7,7 @@ import { ExtendedClient } from "./oracles/ton/types";
 import { Dictionary, TonClient, toNano } from "@ton/ton";
 import { loadStTonPrice } from "./oracles/ton/stton";
 import { DataToPush, PricesToSign } from "./types";
-import { deleteLogFiles, findMedian, sleep } from "./utils";
+import {deleteLogFiles, findMedian, sendIgnoreError, sleep} from "./utils";
 import { loadTsTonPrice } from "./oracles/ton/tston";
 import { WalletService } from "./pushers/iota";
 import path from 'path';
@@ -66,7 +66,7 @@ async function main() {
             }
         } catch (error) {
             console.error(error);
-            bot.api.sendMessage(process.env.TELEGRAM_CHAT_ID, 'Unexpected error. Check logs for details.');
+            await sendIgnoreError(bot, process.env.TELEGRAM_CHAT_ID, 'Unexpected error. Check logs for details.');
         }
         
         setTimeout(tick, 1000);
@@ -92,8 +92,7 @@ async function handlePrices(bot: Bot, clients: ExtendedClient[], iotaWalletServi
             }
         } catch (error) {
             console.error(error);
-            bot.api.sendMessage(process.env.TELEGRAM_CHAT_ID, 'Failed to get Pyth prices. Skipping...')
-                .catch((error) => console.error(error));
+            await sendIgnoreError(bot, process.env.TELEGRAM_CHAT_ID, 'Failed to get Pyth prices. Skipping...');
         }
     })());
     promises.push((async () => {
@@ -104,8 +103,7 @@ async function handlePrices(bot: Bot, clients: ExtendedClient[], iotaWalletServi
             }
         } catch (error) {
             console.error(error);
-            bot.api.sendMessage(process.env.TELEGRAM_CHAT_ID, 'Failed to get Redstone prices. Skipping...')
-                .catch((error) => console.error(error));
+            await sendIgnoreError(bot, process.env.TELEGRAM_CHAT_ID, 'Failed to get Redstone prices. Skipping...');
         }
     })());
     promises.push((async () => {
@@ -116,11 +114,14 @@ async function handlePrices(bot: Bot, clients: ExtendedClient[], iotaWalletServi
             }
         } catch (error) {
             console.error(error);
-            bot.api.sendMessage(process.env.TELEGRAM_CHAT_ID, 'Failed to get Supra prices. Skipping...')
-                .catch((error) => console.error(error));
+            await sendIgnoreError(bot, process.env.TELEGRAM_CHAT_ID, 'Failed to get Supra prices. Skipping...');
         }
     })());
     await Promise.all(promises);
+
+    if (aggregatedPrices.TON.length === 0 || aggregatedPrices.USDT.length === 0 || aggregatedPrices.USDC.length === 0) {
+        throw new Error('Failed to get prices from all sources');
+    }
 
     let pricesToSign: PricesToSign = {
         TON: findMedian(aggregatedPrices.TON),
@@ -137,8 +138,7 @@ async function handlePrices(bot: Bot, clients: ExtendedClient[], iotaWalletServi
             pricesToSign.stTON = await loadStTonPrice(clients, pricesToSign.TON);
         } catch (error) {
             console.error(error);
-            bot.api.sendMessage(process.env.TELEGRAM_CHAT_ID, 'Failed to load stTON price. Skipping...')
-                .catch((error) => console.error(error));
+            await bot.api.sendMessage(process.env.TELEGRAM_CHAT_ID, 'Failed to load stTON price. Skipping...');
         }
     })());
     promises.push((async () => {
@@ -146,8 +146,7 @@ async function handlePrices(bot: Bot, clients: ExtendedClient[], iotaWalletServi
             pricesToSign.tsTON = await loadTsTonPrice(clients, pricesToSign.TON);
         } catch (error) {
             console.error(error);
-            bot.api.sendMessage(process.env.TELEGRAM_CHAT_ID, 'Failed to load tsTON price. Skipping...')
-                .catch((error) => console.error(error));
+            await bot.api.sendMessage(process.env.TELEGRAM_CHAT_ID, 'Failed to load tsTON price. Skipping...');
         }
     })());
     await Promise.all(promises);
@@ -161,8 +160,7 @@ async function handlePrices(bot: Bot, clients: ExtendedClient[], iotaWalletServi
     const assets: bigint[] = [];
     for (const [key, value] of Object.entries(pricesToSign)) {
         if (pricesToSign[key] === undefined) {
-            bot.api.sendMessage(process.env.TELEGRAM_CHAT_ID, `Price for ${key} is undefined. Skipping...`)
-                .catch((error) => console.error(error));
+            await sendIgnoreError(bot, process.env.TELEGRAM_CHAT_ID, `Price for ${key} is undefined. Skipping...`);
             continue;
         }
         pricesDict.set(ASSETS_ID[key], toNano(value));

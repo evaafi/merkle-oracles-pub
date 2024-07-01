@@ -216,7 +216,6 @@ export async function getPythPrices(bot: Bot, prefix: string): Promise<OraclePri
     }
 
     if (errors) {
-        await bot.api.sendMessage(process.env.TELEGRAM_CHAT_ID, `${prefix} ${errors}`);
         await sleep(300);
         throw new Error(errors);
     }
